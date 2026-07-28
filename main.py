@@ -23,6 +23,8 @@ if os.path.exists(FILE):
         messages = []
 else:
     messages = []
+    with open(FILE, "w", encoding="utf-8") as f:
+        json.dump(messages, f)
 
 def save_messages():
     """Сохраняем сообщения в файл"""
@@ -32,7 +34,7 @@ def save_messages():
 @app.post("/send")
 def send(data: dict):
     messages.append({"name": data["name"], "msg": data["msg"]})
-    save_messages()  # сохраняем сразу после добавления
+    save_messages()  # сохраняем сразу
     return {"ok": True}
 
 @app.get("/messages")
