@@ -15,26 +15,31 @@ app.add_middleware(
 FILE = "messages.json"
 
 # Загружаем сообщения при старте
-if os.path.exists(FILE):
+def load_messages():
+    if not os.path.exists(FILE):
+        with open(FILE, "w", encoding="utf-8") as f:
+            f.write("[]")
+        return []
+
     try:
         with open(FILE, "r", encoding="utf-8") as f:
-            messages = json.load(f)
+            return json.load(f)
     except:
-        messages = []
-else:
-    messages = []
-    with open(FILE, "w", encoding="utf-8") as f:
-        json.dump(messages, f)
+        # если файл битый — пересоздаём
+        with open(FILE, "w", encoding="utf-8") as f:
+            f.write("[]")
+        return []
+
+messages = load_messages()
 
 def save_messages():
-    """Сохраняем сообщения в файл"""
     with open(FILE, "w", encoding="utf-8") as f:
         json.dump(messages, f, ensure_ascii=False, indent=2)
 
 @app.post("/send")
 def send(data: dict):
     messages.append({"name": data["name"], "msg": data["msg"]})
-    save_messages()  # сохраняем сразу
+    save_messages()
     return {"ok": True}
 
 @app.get("/messages")
